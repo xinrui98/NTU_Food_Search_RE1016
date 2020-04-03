@@ -156,11 +156,11 @@ def search_by_keyword(user_input_keywords):
 
     # split the keywords into individual words using an array
     individual_keywords_array = user_input_keywords.split()
+    number_of_keywords = len(individual_keywords_array)
 
     # shows how many relevant searches appear
     total_keywords_appearances = 0
 
-    foodcourt_foodstall_dict = {}
     food_court_name_list = []
     food_stall_name_list = []
     food_stall_info_list = []
@@ -172,7 +172,8 @@ def search_by_keyword(user_input_keywords):
             for individual_word in individual_keywords_array:
 
                 # check if each individual keyword is in foodstall's name
-                if individual_word in key:
+                # capitalise first letter of individual keyword to fit format given in dictionary
+                if ux.capitalise_first_letter(individual_word) in key:
                     total_keywords_appearances += 1
                     # updating foodcourt_foodstall_dict
                     # foodcourt_foodstall_dict.update({key: canteen})
@@ -182,11 +183,12 @@ def search_by_keyword(user_input_keywords):
                     food_stall_name_list.append(key)
                     food_stall_info_list.append(info[key])
 
-                    print("CANTEEN: " + canteen + " || ", end="")
-                    print("FOOD STALL: " + key)
+                    # print("CANTEEN: " + canteen + " || ", end="")
+                    # print("FOOD STALL: " + key)
 
                 # check if keyword is in foodstall's description
-                elif individual_word in info[key]:
+                # capitalise first letter of individual keyword to fit format given in dictionary
+                elif ux.capitalise_first_letter(individual_word) in info[key]:
                     total_keywords_appearances += 1
                     # updating foodcourt_foodstall_dict
                     # foodcourt_foodstall_dict.update({key: canteen})
@@ -196,62 +198,120 @@ def search_by_keyword(user_input_keywords):
                     food_stall_name_list.append(key)
                     food_stall_info_list.append(info[key])
 
-                    print("CANTEEN: " + canteen + "|| ", end="")
-                    print("FOOD STALL: " + key)
+                    # print("CANTEEN: " + canteen + "|| ", end="")
+                    # print("FOOD STALL: " + key)
 
-    print("Food Stalls found: " + str(total_keywords_appearances))
+    # print("Food Stalls found: " + str(total_keywords_appearances))
 
     # print(foodcourt_foodstall_dict)
 
-    # print(food_court_name_list)
-    # print(food_stall_name_list)
+    print("YOLO")
+    print(food_court_name_list)
+    print(food_stall_name_list)
+    print(food_stall_info_list)
 
-    no_repeats_food_court_name_list = food_court_name_list.copy()
+    no_repeats_food_canteen_name_list = food_court_name_list.copy()
     no_repeats_food_stall_name_list = food_stall_name_list.copy()
     no_repeats_food_stall_info_list = food_stall_info_list.copy()
 
-    # check for repeats in food stall names and remove them from original list of food stalls and food canteens
-    repeated_food_stall_name_dict = check_for_repeats(food_stall_name_list, 2)
+    # trying a matrix to simplify processes
+    dict_repeated_food_stall_name = check_for_repeats(food_stall_name_list, number_of_keywords)
 
-    for key_repeated_food_stall in repeated_food_stall_name_dict:
+    for key_repeated_food_stall in dict_repeated_food_stall_name:
         for j in range(len(no_repeats_food_stall_name_list)):
             if food_stall_name_list[j] == key_repeated_food_stall:
-                no_repeats_food_court_name_list[j] = None
+                no_repeats_food_canteen_name_list[j] = None
                 no_repeats_food_stall_name_list[j] = None
                 no_repeats_food_stall_info_list[j] = None
 
-    # for repeated_food_stall_name_key in repeated_food_stall_name_dict:
+                #####################################
+                # list_matrix_repeated_food[0].append(dict_repeated_food_stall_name[key_repeated_food_stall])
+                # list_matrix_repeated_food[1].append(food_court_name_list[j])
+                # list_matrix_repeated_food[2].append(food_stall_name_list[j])
+                # list_matrix_repeated_food[3].append(food_stall_info_list[j])
+
+    print("hello world lets get it bois")
+    # lol it works
+    list_matrix_repeated_food = check_for_repeats_v2(food_court_name_list, food_stall_name_list, food_stall_info_list,
+                                                     number_of_keywords)
+    # print(list_matrix_repeated_food)
+
+    # for repeated_food_stall_name_key in dict_repeated_food_stall_name:
     #     if repeated_food_stall_name_key in food_stall_name_list:
     #         no_repeats_food_stall_name_list.remove(repeated_food_stall_name_key)
     #         # get the index repeated food stall in order to remove the corresponding element in food court list
     #         # to do this, use list.index(element)
     #         repeated_index = food_stall_name_list.index(repeated_food_stall_name_key)
-    #         no_repeats_food_court_name_list.pop(repeated_index)
+    #         no_repeats_food_canteen_name_list.pop(repeated_index)
 
-    print("og list")
-    print(food_stall_name_list)
-    print("########################################################################################################")
-    print("Food that only fufils one of the keywords")
-    print(no_repeats_food_court_name_list)
-    print(no_repeats_food_stall_name_list)
-    print(no_repeats_food_stall_info_list)
-    print(get_count_by_not_counting_none(no_repeats_food_court_name_list))
-    print("########################################################################################################")
-    print(repeated_food_stall_name_dict)
+    # print("og list")
+    # print(food_stall_name_list)
+    # print("########################################################################################################")
+    # print("Food that only fufils one of the keywords")
+    # print(no_repeats_food_canteen_name_list)
+    # print(no_repeats_food_stall_name_list)
+    # print(no_repeats_food_stall_info_list)
+    # print(get_count_by_not_counting_none(no_repeats_food_canteen_name_list))
+    # print("#########################################################################################################")
+    # print(dict_repeated_food_stall_name)
+
+    # user output
+    # Total number of relevant food stalls
+    total_number_of_relevant_food_stalls = len((remove_NONE_from_list(no_repeats_food_stall_name_list))) + len(
+        list_matrix_repeated_food[0])
+    print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
+    print("\n")
+
+    # Food stalls that matches ONLY 1 keyword
+    print("Total number of relevant food stalls that matches ONLY 1 keyword: " + str(
+        len(remove_NONE_from_list(no_repeats_food_stall_name_list))))
+    print("\n")
+    # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list
+    for i in range(len(remove_NONE_from_list(no_repeats_food_stall_name_list))):
+        print(remove_NONE_from_list(no_repeats_food_canteen_name_list)[i] + " - " +
+              remove_NONE_from_list(no_repeats_food_stall_name_list)[i] + " - " +
+              remove_NONE_from_list(no_repeats_food_stall_info_list)[i])
+
+    print("\n")
+    # Food stalls that matches MULTIPLE keywords
+    print("Total number of relevant food stalls that matches multiple keywords: " + str(
+        len(list_matrix_repeated_food[0])))
+    for i in range(len((list_matrix_repeated_food)[0])):
+        print("Number of keywords matched : " + str(list_matrix_repeated_food[0][i]) + ", " +
+              list_matrix_repeated_food[1][i] +
+              " - " + list_matrix_repeated_food[2][i] + " - " + list_matrix_repeated_food[3][i])
 
 
-def check_for_repeats(food_list, number_of_repeats):
+def check_for_repeats(food_stall_list, number_of_repeats):
     repeated_food_dict = {}
 
     while number_of_repeats > 1:
-        # repeats = [
-        #     item
-        for item, count in collections.Counter(food_list).items():
+        for item, count in collections.Counter(food_stall_list).items():
             if count == number_of_repeats:
+                # get index of element that fufils the criteria to update canteen and food info too
+                selected_index = food_stall_list.index(item)
                 repeated_food_dict.update({item: count})
         number_of_repeats -= 1
 
     return repeated_food_dict
+
+
+def check_for_repeats_v2(food_court_list, food_stall_list, food_stall_info_list, number_of_repeats):
+    repeated_food_4_col_matrix = [[], [], [], []]
+
+    while number_of_repeats > 1:
+        for item, count in collections.Counter(food_stall_list).items():
+            if count == number_of_repeats:
+                # get index of element that fufils the criteria to update canteen and food info too
+                selected_index = food_stall_list.index(item)
+                # repeated_food_dict.update({item: count})
+                repeated_food_4_col_matrix[0].append(count)
+                repeated_food_4_col_matrix[1].append(food_court_list[selected_index])
+                repeated_food_4_col_matrix[2].append(food_stall_list[selected_index])
+                repeated_food_4_col_matrix[3].append(food_stall_info_list[selected_index])
+        number_of_repeats -= 1
+
+    return repeated_food_4_col_matrix
 
 
 def get_count_by_not_counting_none(food_list):
@@ -262,6 +322,10 @@ def get_count_by_not_counting_none(food_list):
         else:
             total_count += 1
     return total_count
+
+
+def remove_NONE_from_list(food_list):
+    return [value for value in food_list if value != None]
 
 
 # Price-based Search Function - to be implemented
@@ -303,15 +367,18 @@ def main():
 
             # testing ux function
             ux.error_handler()
-
             print("1 -- Display Data")
             print("Keyword Dictionary: ", canteen_stall_keywords)
             print("Price Dictionary: ", canteen_stall_prices)
             print("Location Dictionary: ", canteen_locations)
+
+
+
         elif option == 2:
             # keyword-based search
             print("Keyword-based Search")
-            user_input_keywords = input("Hello, please input intended keywords, e.g. Western Chicken")
+            user_input_keywords = input(
+                "Please input intended keywords with appropriate spaces, e.g. Western Chicken: ")
             search_by_keyword(user_input_keywords)
             # call keyword-based search function
             # search_by_keyword(keywords)
