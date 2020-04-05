@@ -151,7 +151,7 @@ def get_user_location_interface():
 
 
 # Keyword-based Search Function - to be implemented
-def search_by_keyword():
+def search_by_keyword(print_info_true_or_false):
     # that returns all food stall listed in the database
 
     # ask for user input keywords
@@ -219,34 +219,52 @@ def search_by_keyword():
                 list_matrix_NO_repeated_food[1][j] = None
                 list_matrix_NO_repeated_food[2][j] = None
 
-    # user output
-    # Total number of relevant food stalls
-    total_number_of_relevant_food_stalls = len((remove_NONE_from_list(list_matrix_NO_repeated_food[1]))) + len(
-        list_matrix_repeated_food[0])
-    print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
-    print("\n")
-
-    # Food stalls that matches ONLY 1 keyword
-    print("Total number of relevant food stalls that matches 1 keyword: " + str(
-        len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))))
-
-    # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list and print the non-NONE elements
-    for i in range(len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))):
-        print(remove_NONE_from_list(list_matrix_NO_repeated_food[0])[i] + " - " +
-              remove_NONE_from_list(list_matrix_NO_repeated_food[1])[i] + " - " +
-              remove_NONE_from_list(list_matrix_NO_repeated_food[2])[i])
-
-    # only print output for multiple keywords if relevant
-    if len(list_matrix_repeated_food[0]) > 0:
+    # decide whether to print info or not. I want to recycle part of this function for future use
+    if print_info_true_or_false == True:
+        # user output
+        # Total number of relevant food stalls
+        total_number_of_relevant_food_stalls = len((remove_NONE_from_list(list_matrix_NO_repeated_food[1]))) + len(
+            list_matrix_repeated_food[0])
+        print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
         print("\n")
-        # Food stalls that matches MULTIPLE keywords
-        print("Total number of relevant food stalls that matches multiple keywords: " + str(
-            len(list_matrix_repeated_food[0])))
-        for i in range(len((list_matrix_repeated_food)[0])):
-            print("Number of keywords matched : " + str(list_matrix_repeated_food[0][i]) + ", " +
-                  list_matrix_repeated_food[1][i] +
-                  " - " + list_matrix_repeated_food[2][i] + " - " + list_matrix_repeated_food[3][i])
-    return True
+
+        # Food stalls that matches ONLY 1 keyword
+        print("Total number of relevant food stalls that matches 1 keyword: " + str(
+            len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))))
+
+        # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list and print the non-NONE elements
+        for i in range(len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))):
+            print(remove_NONE_from_list(list_matrix_NO_repeated_food[0])[i] + " - " +
+                  remove_NONE_from_list(list_matrix_NO_repeated_food[1])[i] + " - " +
+                  remove_NONE_from_list(list_matrix_NO_repeated_food[2])[i])
+
+        # only print output for multiple keywords if relevant
+        if len(list_matrix_repeated_food[0]) > 0:
+            print("\n")
+            # Food stalls that matches MULTIPLE keywords
+            print("Total number of relevant food stalls that matches multiple keywords: " + str(
+                len(list_matrix_repeated_food[0])))
+            for i in range(len((list_matrix_repeated_food)[0])):
+                print("Number of keywords matched : " + str(list_matrix_repeated_food[0][i]) + ", " +
+                      list_matrix_repeated_food[1][i] +
+                      " - " + list_matrix_repeated_food[2][i] + " - " + list_matrix_repeated_food[3][i])
+
+    # return all relevant searches in 1 big matrix, combining repeated and non-repeated food
+    # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc]]
+    list_combined_food_details = [[], [], []]
+    list_combined_food_details[0] = remove_NONE_from_list((list_matrix_NO_repeated_food)[0]).copy()
+    list_combined_food_details[1] = remove_NONE_from_list((list_matrix_NO_repeated_food)[1]).copy()
+    list_combined_food_details[2] = remove_NONE_from_list((list_matrix_NO_repeated_food)[2]).copy()
+
+    for k in range(len(list_matrix_repeated_food[0])):
+        list_combined_food_details[0].append(list_matrix_repeated_food[1][k])
+        list_combined_food_details[1].append(list_matrix_repeated_food[2][k])
+        list_combined_food_details[2].append(list_matrix_repeated_food[3][k])
+
+        # print("testing list combined food details")
+        # print(list_combined_food_details)
+
+    return list_combined_food_details
 
 
 # returns a 4 row matrix that stores all information of repeated food stalls
@@ -274,8 +292,57 @@ def remove_NONE_from_list(food_list):
 
 
 # Price-based Search Function - to be implemented
-def search_by_price(keywords):
-    pass
+# add on to keywords based search
+def search_by_price():
+    list_matrix_search_by_keywords = search_by_keyword(False)
+
+    # creating a matrix to store all information and price
+    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[price1, price2 etc]]
+    list_matrix_all_food_prices = [[], [], []]
+    for canteen, info in canteen_stall_prices.items():
+        for key in info:
+            list_matrix_all_food_prices[0].append(canteen)
+            list_matrix_all_food_prices[1].append(key)
+            list_matrix_all_food_prices[2].append(info[key])
+
+    # creating a matrix with relevant foodstalls and their prices
+    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[price1, price2 etc]]
+    list_matrix_relevant_food_prices = [[], [], []]
+    # filtering the relevant food stalls by keywords and show price
+    for relevant_food_stall in list_matrix_search_by_keywords[1]:
+        for i in range(len(list_matrix_all_food_prices[1])):
+            if relevant_food_stall == list_matrix_all_food_prices[1][i]:
+                list_matrix_relevant_food_prices[0].append(list_matrix_all_food_prices[0][i])
+                list_matrix_relevant_food_prices[1].append(list_matrix_all_food_prices[1][i])
+                list_matrix_relevant_food_prices[2].append(list_matrix_all_food_prices[2][i])
+
+    print(list_matrix_relevant_food_prices[2])
+
+    # def bubbleSort(arr):
+    # Traverse through all array elements
+    array_len = len(list_matrix_relevant_food_prices[2])
+    print(array_len)
+    for i in range(array_len):
+        # Last i elements are already in place
+        for j in range(0, array_len - i - 1):
+
+            # traverse the array from 0 to n-i-1
+            # Swap if the element found is greater
+            # than the next element
+            if list_matrix_relevant_food_prices[2][j] > list_matrix_relevant_food_prices[2][j + 1]:
+                list_matrix_relevant_food_prices[2][j], list_matrix_relevant_food_prices[2][j + 1] = list_matrix_relevant_food_prices[2][j + 1], list_matrix_relevant_food_prices[2][j]
+
+                # perform corresponding rearrangement for food canteens
+                list_matrix_relevant_food_prices[0][j], list_matrix_relevant_food_prices[0][j + 1] = \
+                    list_matrix_relevant_food_prices[0][j + 1], list_matrix_relevant_food_prices[0][j]
+
+                # perform corresponding rearrangement for food stalls
+                list_matrix_relevant_food_prices[1][j], list_matrix_relevant_food_prices[1][j + 1] = \
+                    list_matrix_relevant_food_prices[1][j + 1], list_matrix_relevant_food_prices[1][j]
+
+    print(list_matrix_relevant_food_prices[2])
+    print(list_matrix_relevant_food_prices[0])
+    print(list_matrix_relevant_food_prices[1])
 
 
 # Location-based Search Function - to be implemented
@@ -334,12 +401,13 @@ def main():
         elif option == 2:
             # keyword-based search
             print("Keyword-based Search")
-            search_by_keyword()
+            search_by_keyword(True)
 
 
         elif option == 3:
             # price-based search
             print("Price-based Search")
+            search_by_price()
 
             # call price-based search function
             # search_by_price(keywords)
