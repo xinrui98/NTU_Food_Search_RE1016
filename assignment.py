@@ -227,6 +227,7 @@ def search_by_keyword(print_info_true_or_false):
         # Total number of relevant food stalls
         total_number_of_relevant_food_stalls = len((remove_NONE_from_list(list_matrix_NO_repeated_food[1]))) + len(
             list_matrix_repeated_food[0])
+        print("\n")
         print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
         print("\n")
 
@@ -247,7 +248,7 @@ def search_by_keyword(print_info_true_or_false):
             print("Total number of relevant food stalls that matches multiple keywords: " + str(
                 len(list_matrix_repeated_food[0])))
             for i in range(len((list_matrix_repeated_food)[0])):
-                print("Number of keywords matched : " + str(list_matrix_repeated_food[3][i]) + ", " +
+                print("Number of keywords matched : " + str(list_matrix_repeated_food[3][i]) + " | " +
                       list_matrix_repeated_food[0][i] +
                       " - " + list_matrix_repeated_food[1][i] + " - " + list_matrix_repeated_food[2][i])
 
@@ -264,12 +265,6 @@ def search_by_keyword(print_info_true_or_false):
         list_combined_food_details[1].append(list_matrix_repeated_food[1][k])
         list_combined_food_details[2].append(list_matrix_repeated_food[2][k])
         list_combined_food_details[3].append(list_matrix_repeated_food[3][k])
-
-        # print("testing list combined food details")
-        # print(list_combined_food_details[0])
-        # print(list_combined_food_details[1])
-        # print(list_combined_food_details[2])
-    print(list_combined_food_details[3])
 
     return list_combined_food_details
 
@@ -323,10 +318,10 @@ def search_by_price():
     for relevant_food_stall in list_matrix_search_by_keywords[1]:
         for i in range(len(list_matrix_all_food_prices[1])):
             if relevant_food_stall == list_matrix_all_food_prices[1][i]:
-                #getting the relevant food stall prices
+                # getting the relevant food stall prices
                 list_matrix_relevant_food_prices[2].append(list_matrix_all_food_prices[2][i])
 
-    #rest of the relevant information(canteen name, food stall, number of repeats) are already known from search_by_keywords function
+    # rest of the relevant information(canteen name, food stall, number of repeats) are already known from search_by_keywords function
     list_matrix_relevant_food_prices[0] = list_matrix_search_by_keywords[0].copy()
     list_matrix_relevant_food_prices[1] = list_matrix_search_by_keywords[1].copy()
     list_matrix_relevant_food_prices[3] = list_matrix_search_by_keywords[3].copy()
@@ -334,7 +329,6 @@ def search_by_price():
     # def bubbleSort(arr):
     # Traverse through all array elements
     array_len = len(list_matrix_relevant_food_prices[2])
-    print(array_len)
     for i in range(array_len):
         # Last i elements are already in place
         for j in range(0, array_len - i - 1):
@@ -358,10 +352,21 @@ def search_by_price():
                 list_matrix_relevant_food_prices[3][j], list_matrix_relevant_food_prices[3][j + 1] = \
                     list_matrix_relevant_food_prices[3][j + 1], list_matrix_relevant_food_prices[3][j]
 
-    print(list_matrix_relevant_food_prices[3])
-    print(list_matrix_relevant_food_prices[0])
-    print(list_matrix_relevant_food_prices[1])
-    print(list_matrix_relevant_food_prices[2])
+
+    # user output
+    # Total number of relevant food stalls
+    print("\n")
+    total_number_of_relevant_food_stalls = len(list_matrix_relevant_food_prices[0])
+    print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
+    print("\n")
+
+    # printing info with lowest price to highest price
+    print("Relevant searches in ascending order PRICE")
+    for i in range(total_number_of_relevant_food_stalls):
+        print(list_matrix_relevant_food_prices[0][i] + " - " +
+              list_matrix_relevant_food_prices[1][i] + " " + "| price: " + str(
+            list_matrix_relevant_food_prices[2][i]) + " " + "| Number of relevant keywords: " + str(
+            list_matrix_relevant_food_prices[3][i]))
 
 
 # Location-based Search Function - to be implemented
