@@ -1,4 +1,5 @@
 import pygame
+import math
 from PIL import Image
 import time
 import pandas as pd
@@ -151,12 +152,8 @@ def get_user_location_interface():
 
 
 # Keyword-based Search Function - to be implemented
-def search_by_keyword(print_info_true_or_false):
+def search_by_keyword(user_input_keywords, print_info_true_or_false):
     # that returns all food stall listed in the database
-
-    # ask for user input keywords
-    user_input_keywords = input(
-        "Please input intended keywords with appropriate spaces, e.g. Western Chicken: ")
 
     # split the keywords into individual words using an array
     individual_keywords_array = user_input_keywords.split()
@@ -299,8 +296,8 @@ def remove_NONE_from_list(food_list):
 # add on to keywords based search
 # NUMBER OF REPEATS NOT WORKING FOR NOW
 
-def search_by_price():
-    list_matrix_search_by_keywords = search_by_keyword(False)
+def search_by_price(user_input_keywords):
+    list_matrix_search_by_keywords = search_by_keyword(user_input_keywords, False)
 
     # creating a matrix to store all information and price
     # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[price1, price2 etc]]
@@ -326,14 +323,14 @@ def search_by_price():
     list_matrix_relevant_food_prices[1] = list_matrix_search_by_keywords[1].copy()
     list_matrix_relevant_food_prices[3] = list_matrix_search_by_keywords[3].copy()
 
-    # def bubbleSort(arr):
-    # Traverse through all array elements
-    array_len = len(list_matrix_relevant_food_prices[2])
-    for i in range(array_len):
+    # Performing bubbleSort
+    # Traverse through all list elements
+    list_len = len(list_matrix_relevant_food_prices[2])
+    for i in range(list_len):
         # Last i elements are already in place
-        for j in range(0, array_len - i - 1):
+        for j in range(0, list_len - i - 1):
 
-            # traverse the array from 0 to n-i-1
+            # traverse the array from 0 to list_len-i-1
             # Swap if the element found is greater
             # than the next element
             if list_matrix_relevant_food_prices[2][j] > list_matrix_relevant_food_prices[2][j + 1]:
@@ -352,7 +349,6 @@ def search_by_price():
                 list_matrix_relevant_food_prices[3][j], list_matrix_relevant_food_prices[3][j + 1] = \
                     list_matrix_relevant_food_prices[3][j + 1], list_matrix_relevant_food_prices[3][j]
 
-
     # user output
     # Total number of relevant food stalls
     print("\n")
@@ -370,8 +366,104 @@ def search_by_price():
 
 
 # Location-based Search Function - to be implemented
-def search_nearest_canteens(user_locations, k):
-    pass
+def search_nearest_canteens(user_locations):
+    # convert canteen locations dict into a 2 row matrix
+    # it looks something like this [[canteen1, canteen2 etc],[[cant1 x, cant1 y],[cant2 x, cant2 y etc]]]
+    list_matrix_canteen_locations = [[], []]
+    for canteen, location_info in canteen_locations.items():
+        list_matrix_canteen_locations[0].append(canteen)
+        list_matrix_canteen_locations[1].append(location_info)
+
+    # handling user error
+    while True:
+        try:
+            num_of_nearest_canteens = int(input("Input the number of canteens you want to search: "))
+        except ValueError:
+            print("Invalid type, please try again")
+            # better try again... Return to the start of the loop
+            continue
+        if (num_of_nearest_canteens > len(list_matrix_canteen_locations[0])):
+            print("We only have " + str(len(list_matrix_canteen_locations[0])) + " canteens, please try again.")
+            continue
+        else:
+            # success
+            # we're ready to exit the loop.
+            break
+
+    # compiling the distances between user(s) location and target location into a single list
+    list_of_distances_from_targets = []
+    #if only 1 user location is selected
+    if len(user_locations)==1:
+        # calc distance between every canteen and the 2 locations chosen by user
+        # first location
+        userX = user_locations[0][0]
+        # print("user1x : " + str(user1X))
+        userY = user_locations[0][1]
+        # print("user1y : " + str(user1Y))
+
+
+        for i in range(len(list_matrix_canteen_locations[0])):
+            targetX = list_matrix_canteen_locations[1][i][0]
+            targetY = list_matrix_canteen_locations[1][i][1]
+            # print("targetX: " + str(targetX))
+            # print("targetY: " + str(targetY))
+            sum_of_2_distances = calc_distance(userX, userY, targetX, targetY)
+            list_of_distances_from_targets.append(sum_of_2_distances)
+
+    #if 2 user locations were selected
+    elif len(user_locations)==2:
+        # calc distance between every canteen and the 2 locations chosen by user
+        # first location
+        user1X = user_locations[0][0]
+        # print("user1x : " + str(user1X))
+        user1Y = user_locations[0][1]
+        # print("user1y : " + str(user1Y))
+
+        # second location
+        user2X = user_locations[1][0]
+        # print("user2X : " + str(user2X))
+        user2Y = user_locations[1][1]
+        # print("user2Y : " + str(user2Y))
+
+        for i in range(len(list_matrix_canteen_locations[0])):
+            targetX = list_matrix_canteen_locations[1][i][0]
+            targetY = list_matrix_canteen_locations[1][i][1]
+            # print("targetX: " + str(targetX))
+            # print("targetY: " + str(targetY))
+            sum_of_2_distances = calc_distance(user1X, user1Y, targetX, targetY) + calc_distance(user2X, user2Y, targetX,
+                                                                                                 targetY)
+            list_of_distances_from_targets.append(sum_of_2_distances)
+
+    # perform bubble sort for distances in ascending order
+    # Traverse through all array elements
+    len_list = len(list_of_distances_from_targets)
+    for i in range(len_list):
+
+        # Last i elements are already in place
+        for j in range(0, len_list - i - 1):
+
+            # traverse the array from 0 to n-i-1
+            # Swap if the element found is greater
+            # than the next element
+            if list_of_distances_from_targets[j] > list_of_distances_from_targets[j + 1]:
+                # sorting distances in ascending order
+                list_of_distances_from_targets[j], list_of_distances_from_targets[j + 1] = \
+                    list_of_distances_from_targets[j + 1], list_of_distances_from_targets[j]
+
+                # matching the corresponding canteen names
+                list_matrix_canteen_locations[0][j], list_matrix_canteen_locations[0][j + 1] = \
+                    list_matrix_canteen_locations[0][j + 1], list_matrix_canteen_locations[0][j]
+
+    # printing out user input based on the number of canteens user wants
+    print("Showing the nearest " + str(num_of_nearest_canteens) + " canteens to you...")
+    for i in range(num_of_nearest_canteens):
+        print(list_matrix_canteen_locations[0][i] + " - distance: " + str(list_of_distances_from_targets[i]))
+
+
+def calc_distance(userX, userY, targetX, targetY):
+    distance = math.sqrt(((userX - targetX) ** 2) + ((userY - targetY) ** 2))
+    # print("distance: " + str(distance))
+    return distance
 
 
 # Any additional function to assist search criteria
@@ -397,18 +489,21 @@ def main():
         print("5 -- Exit Program")
         print("=======================")
 
-        # handling invalid user input type
-        try:
-            option = int(input("Enter option [1-5]: "))
-        except ValueError:
-            print("invalid input type, please try again")
-            main()
-
-        # if invalid number option, try again
+        # handling user error
         option_list = [1, 2, 3, 4, 5]
-        if option not in option_list:
-            print("invalid input number, please try again")
-            main()
+        while True:
+            try:
+                option = int(input("Enter option [1-5]: "))
+            except ValueError:
+                print("Invalid type, please try again")
+                # better try again... Return to the start of the loop
+                continue
+            if option not in option_list:
+                print("invalid input number, please try again")
+                continue
+            else:
+                # we're ready to exit the loop.
+                break
 
         if option == 1:
             # print provided dictionary data structures
@@ -425,28 +520,86 @@ def main():
         elif option == 2:
             # keyword-based search
             print("Keyword-based Search")
-            search_by_keyword(True)
+
+            while True:
+                try:
+                    # ask for user input keywords
+                    user_input_keywords = input(
+                        "Please input intended keywords with appropriate spaces, e.g. Western Chicken: ")
+                except ValueError:
+                    print("Invalid type, please try again")
+                    # better try again... Return to the start of the loop
+                    continue
+                else:
+                    # we're ready to exit the loop.
+                    break
+            search_by_keyword(user_input_keywords, True)
+
+
 
 
         elif option == 3:
             # price-based search
             print("Price-based Search")
-            search_by_price()
+            while True:
+                try:
+                    # ask for user input keywords
+                    user_input_keywords = input(
+                        "Please input intended keywords with appropriate spaces, e.g. Western Chicken: ")
+                except ValueError:
+                    print("Invalid type, please try again")
+                    # better try again... Return to the start of the loop
+                    continue
+                else:
+                    # we're ready to exit the loop.
+                    break
+            search_by_price(user_input_keywords)
 
-            # call price-based search function
-            # search_by_price(keywords)
         elif option == 4:
             # location-based search
             print("Location-based Search")
 
-            # call PyGame function to get two users' locations
-            userA_location = get_user_location_interface()
-            print("User A's location (x, y): ", userA_location)
-            userB_location = get_user_location_interface()
-            print("User B's location (x, y): ", userB_location)
+            while True:
+                try:
+                    num_of_locations_to_select = int(input("Do you wish to select 1 or 2 locations on the NTU map?: "))
+                except ValueError:
+                    print("Invalid type, please try again")
+                    # better try again... Return to the start of the loop
+                    continue
 
-            # call location-based search function
-            # search_nearest_canteens(user_locations, k)
+                if num_of_locations_to_select not in range(1,3):
+                    print("invalid input number, please try again")
+                    continue
+
+                elif num_of_locations_to_select == 1:
+                    print("num of locations to select = 1")
+                    # call PyGame function to get two users' locations
+                    user_location = get_user_location_interface()
+                    print("User's location (x, y): ", user_location)
+                    user_location_list = [user_location]
+                    # call location-based search function
+                    search_nearest_canteens(user_location_list)
+                    break
+
+                elif num_of_locations_to_select == 2:
+                    print("num of locations to select = 2")
+                    # call PyGame function to get two users' locations
+                    userA_location = get_user_location_interface()
+                    print("User A's location (x, y): ", userA_location)
+                    userB_location = get_user_location_interface()
+                    print("User B's location (x, y): ", userB_location)
+
+                    user_locations_list = [userA_location, userB_location]
+                    # call location-based search function
+                    search_nearest_canteens(user_locations_list)
+                    break
+
+                else:
+                    # we're ready to exit the loop.
+                    break
+
+
+
         elif option == 5:
             # exit the program
             print("Exiting F&B Recommendation")
