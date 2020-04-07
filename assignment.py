@@ -162,9 +162,8 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
     # shows how many relevant searches appear
     total_keywords_appearances = 0
 
-    food_court_name_list = []
-    food_stall_name_list = []
-    food_stall_info_list = []
+    # looks something like this, [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc]]
+    list_matrix_original_food = [[], [], []]
 
     for canteen, info in canteen_stall_keywords.items():
         for key in info:
@@ -179,9 +178,9 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
                     # foodcourt_foodstall_dict.update({key: canteen})
 
                     # updating the lists for foodcourt name and foodstall name and foodstall info
-                    food_court_name_list.append(canteen)
-                    food_stall_name_list.append(key)
-                    food_stall_info_list.append(info[key])
+                    list_matrix_original_food[0].append(canteen)
+                    list_matrix_original_food[1].append(key)
+                    list_matrix_original_food[2].append(info[key])
 
                 # check if keyword is in foodstall's description
                 # capitalise first letter of individual keyword to fit format given in dictionary
@@ -191,38 +190,41 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
                     # foodcourt_foodstall_dict.update({key: canteen})
 
                     # updating the lists for foodcourt name and foodstall name and foodstall info
-                    food_court_name_list.append(canteen)
-                    food_stall_name_list.append(key)
-                    food_stall_info_list.append(info[key])
+                    list_matrix_original_food[0].append(canteen)
+                    list_matrix_original_food[1].append(key)
+                    list_matrix_original_food[2].append(info[key])
 
     # handling error of no relevant searches found, asking user to try again
     if (ux.error_handling_no_type_of_food(total_keywords_appearances)):
-        search_by_keyword()
+        print("no relevant searches found, please try again")
+        return False
 
     # trying a repeated food matrix to simplify processes
-    # it looks something like this [[count1, count2 etc],[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc]]
-    list_matrix_repeated_food = check_for_repeats_v2(food_court_name_list, food_stall_name_list, food_stall_info_list,
-                                                     number_of_keywords)
-
-    # trying a NO repeats food matrix to simplify processes
-    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[number of repeats: all values = 1]]
-    list_matrix_NO_repeated_food = [food_court_name_list.copy(), food_stall_name_list.copy(),
-                                    food_stall_info_list.copy(), [1 for i in range(len(food_stall_name_list))]]
+    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[count1, count2 etc]]
+    list_matrix_repeated_food = check_for_repeats(list_matrix_original_food[0], list_matrix_original_food[1],
+                                                  list_matrix_original_food[2],
+                                                  number_of_keywords)
 
     # updating repeated elements to NONE
     for key_repeated_food_stall in list_matrix_repeated_food[1]:
-        for j in range(len(list_matrix_NO_repeated_food[1])):
-            if food_stall_name_list[j] == key_repeated_food_stall:
-                list_matrix_NO_repeated_food[0][j] = None
-                list_matrix_NO_repeated_food[1][j] = None
-                list_matrix_NO_repeated_food[2][j] = None
-                list_matrix_NO_repeated_food[3][j] = None
+        for j in range(len(list_matrix_original_food[1])):
+            if list_matrix_original_food[1][j] == key_repeated_food_stall:
+                list_matrix_original_food[0][j] = None
+                list_matrix_original_food[1][j] = None
+                list_matrix_original_food[2][j] = None
 
-    # decide whether to print info or not. I want to recycle part of this function for future use
+    # trying a NO repeats food matrix to simplify processes
+    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[number of repeats: all values = 1]]
+    list_matrix_NO_repeated_food = [remove_NONE_from_list(list_matrix_original_food[0]),
+                                    remove_NONE_from_list(list_matrix_original_food[1]),
+                                    remove_NONE_from_list(list_matrix_original_food[2]), []]
+    list_matrix_NO_repeated_food[3] = [1 for i in range(len(list_matrix_NO_repeated_food[1]))]
+
+    # decide whether to print info or not. I do not want to print this part when executing search_by_price function
     if print_info_true_or_false == True:
         # user output
         # Total number of relevant food stalls
-        total_number_of_relevant_food_stalls = len((remove_NONE_from_list(list_matrix_NO_repeated_food[1]))) + len(
+        total_number_of_relevant_food_stalls = len((list_matrix_NO_repeated_food[1])) + len(
             list_matrix_repeated_food[0])
         print("\n")
         print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
@@ -230,13 +232,13 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
 
         # Food stalls that matches ONLY 1 keyword
         print("Total number of relevant food stalls that matches 1 keyword: " + str(
-            len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))))
+            len(list_matrix_NO_repeated_food[1])))
 
         # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list and print the non-NONE elements
-        for i in range(len(remove_NONE_from_list(list_matrix_NO_repeated_food[1]))):
-            print(remove_NONE_from_list(list_matrix_NO_repeated_food[0])[i] + " - " +
-                  remove_NONE_from_list(list_matrix_NO_repeated_food[1])[i] + " - " +
-                  remove_NONE_from_list(list_matrix_NO_repeated_food[2])[i])
+        for i in range(len(list_matrix_NO_repeated_food[1])):
+            print(list_matrix_NO_repeated_food[0][i] + " - " +
+                  list_matrix_NO_repeated_food[1][i] + " - " +
+                  list_matrix_NO_repeated_food[2][i])
 
         # only print output for multiple keywords if relevant
         if len(list_matrix_repeated_food[0]) > 0:
@@ -252,10 +254,10 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
     # return all relevant searches in 1 big matrix, combining repeated and non-repeated food
     # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2 etc]]
     list_combined_food_details = [[], [], [], []]
-    list_combined_food_details[0] = remove_NONE_from_list((list_matrix_NO_repeated_food)[0]).copy()
-    list_combined_food_details[1] = remove_NONE_from_list((list_matrix_NO_repeated_food)[1]).copy()
-    list_combined_food_details[2] = remove_NONE_from_list((list_matrix_NO_repeated_food)[2]).copy()
-    list_combined_food_details[3] = remove_NONE_from_list((list_matrix_NO_repeated_food)[3]).copy()
+    list_combined_food_details[0] = list_matrix_NO_repeated_food[0].copy()
+    list_combined_food_details[1] = list_matrix_NO_repeated_food[1].copy()
+    list_combined_food_details[2] = list_matrix_NO_repeated_food[2].copy()
+    list_combined_food_details[3] = list_matrix_NO_repeated_food[3].copy()
 
     for k in range(len(list_matrix_repeated_food[0])):
         list_combined_food_details[0].append(list_matrix_repeated_food[0][k])
@@ -267,7 +269,7 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
 
 
 # returns a 4 row matrix that stores all information of repeated food stalls
-def check_for_repeats_v2(food_court_list, food_stall_list, food_stall_info_list, number_of_repeats):
+def check_for_repeats(food_court_list, food_stall_list, food_stall_info_list, number_of_repeats):
     # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2]]
     repeated_food_4_row_matrix = [[], [], [], []]
 
@@ -276,7 +278,7 @@ def check_for_repeats_v2(food_court_list, food_stall_list, food_stall_info_list,
             if count == number_of_repeats:
                 # get index of element that fufils the criteria to update canteen and food info too
                 selected_index = food_stall_list.index(item)
-                # repeated_food_dict.update({item: count})
+
                 repeated_food_4_row_matrix[0].append(food_court_list[selected_index])
                 repeated_food_4_row_matrix[1].append(food_stall_list[selected_index])
                 repeated_food_4_row_matrix[2].append(food_stall_info_list[selected_index])
@@ -377,6 +379,7 @@ def search_nearest_canteens(user_locations):
     # handling user error
     while True:
         try:
+            print("\n")
             num_of_nearest_canteens = int(input("Input the number of canteens you want to search: "))
         except ValueError:
             print("Invalid type, please try again")
@@ -392,15 +395,14 @@ def search_nearest_canteens(user_locations):
 
     # compiling the distances between user(s) location and target location into a single list
     list_of_distances_from_targets = []
-    #if only 1 user location is selected
-    if len(user_locations)==1:
+    # if only 1 user location is selected
+    if len(user_locations) == 1:
         # calc distance between every canteen and the 2 locations chosen by user
         # first location
         userX = user_locations[0][0]
         # print("user1x : " + str(user1X))
         userY = user_locations[0][1]
         # print("user1y : " + str(user1Y))
-
 
         for i in range(len(list_matrix_canteen_locations[0])):
             targetX = list_matrix_canteen_locations[1][i][0]
@@ -410,8 +412,8 @@ def search_nearest_canteens(user_locations):
             sum_of_2_distances = calc_distance(userX, userY, targetX, targetY)
             list_of_distances_from_targets.append(sum_of_2_distances)
 
-    #if 2 user locations were selected
-    elif len(user_locations)==2:
+    # if 2 user locations were selected
+    elif len(user_locations) == 2:
         # calc distance between every canteen and the 2 locations chosen by user
         # first location
         user1X = user_locations[0][0]
@@ -430,7 +432,8 @@ def search_nearest_canteens(user_locations):
             targetY = list_matrix_canteen_locations[1][i][1]
             # print("targetX: " + str(targetX))
             # print("targetY: " + str(targetY))
-            sum_of_2_distances = calc_distance(user1X, user1Y, targetX, targetY) + calc_distance(user2X, user2Y, targetX,
+            sum_of_2_distances = calc_distance(user1X, user1Y, targetX, targetY) + calc_distance(user2X, user2Y,
+                                                                                                 targetX,
                                                                                                  targetY)
             list_of_distances_from_targets.append(sum_of_2_distances)
 
@@ -454,6 +457,7 @@ def search_nearest_canteens(user_locations):
                 list_matrix_canteen_locations[0][j], list_matrix_canteen_locations[0][j + 1] = \
                     list_matrix_canteen_locations[0][j + 1], list_matrix_canteen_locations[0][j]
 
+    print("\n")
     # printing out user input based on the number of canteens user wants
     print("Showing the nearest " + str(num_of_nearest_canteens) + " canteens to you...")
     for i in range(num_of_nearest_canteens):
@@ -530,10 +534,11 @@ def main():
                     print("Invalid type, please try again")
                     # better try again... Return to the start of the loop
                     continue
+                if search_by_keyword(user_input_keywords, True) == False:
+                    continue
                 else:
                     # we're ready to exit the loop.
                     break
-            search_by_keyword(user_input_keywords, True)
 
 
 
@@ -567,7 +572,7 @@ def main():
                     # better try again... Return to the start of the loop
                     continue
 
-                if num_of_locations_to_select not in range(1,3):
+                if num_of_locations_to_select not in range(1, 3):
                     print("invalid input number, please try again")
                     continue
 
