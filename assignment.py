@@ -139,9 +139,11 @@ def get_user_location_interface():
             # paste pin on correct position
             screen.blit(pinIm_scaled, (mouseX - 25, mouseY - 45))
             pygame.display.flip()
-            # return coordinates to original scale
-            mouseX_scaled = int(mouseX * 1000 / scaled_width)
-            mouseY_scaled = int(mouseY * 800 / scaled_height)
+            # NOTE: replaced original scale with custom scale to improve accuracies
+            # mouseX_scaled = int(mouseX * 1000 / scaled_width)
+            # mouseY_scaled = int(mouseY * 800 / scaled_height)
+            mouseY_scaled = int(mouseX * 1281 / scaled_width)
+            mouseX_scaled = int(mouseY * 1550 / scaled_height)
             # delay to prevent message box from dropping down
             time.sleep(0.2)
             break
@@ -171,11 +173,9 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
             for individual_word in individual_keywords_array:
 
                 # check if each individual keyword is in foodstall's name
-                # capitalise first letter of individual keyword to fit format given in dictionary
-                if ux.capitalise_first_letter(individual_word) in key:
+                # change all to lower case for easy comparison
+                if individual_word.lower() in key.lower():
                     total_keywords_appearances += 1
-                    # updating foodcourt_foodstall_dict
-                    # foodcourt_foodstall_dict.update({key: canteen})
 
                     # updating the lists for foodcourt name and foodstall name and foodstall info
                     list_matrix_original_food[0].append(canteen)
@@ -183,18 +183,16 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
                     list_matrix_original_food[2].append(info[key])
 
                 # check if keyword is in foodstall's description
-                # capitalise first letter of individual keyword to fit format given in dictionary
-                elif ux.capitalise_first_letter(individual_word) in info[key]:
+                # change all to lower case for easy comparison
+                elif individual_word.lower() in info[key].lower():
                     total_keywords_appearances += 1
-                    # updating foodcourt_foodstall_dict
-                    # foodcourt_foodstall_dict.update({key: canteen})
 
                     # updating the lists for foodcourt name and foodstall name and foodstall info
                     list_matrix_original_food[0].append(canteen)
                     list_matrix_original_food[1].append(key)
                     list_matrix_original_food[2].append(info[key])
 
-    # handling error of no relevant searches found, asking user to try again
+    # handling error of 0 relevant searches found, asking user to try again
     if (ux.error_handling_no_type_of_food(total_keywords_appearances)):
         print("no relevant searches found, please try again")
         return False
@@ -268,35 +266,8 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
     return list_combined_food_details
 
 
-# returns a 4 row matrix that stores all information of repeated food stalls
-def check_for_repeats(food_court_list, food_stall_list, food_stall_info_list, number_of_repeats):
-    # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2]]
-    repeated_food_4_row_matrix = [[], [], [], []]
-
-    while number_of_repeats > 1:
-        for item, count in collections.Counter(food_stall_list).items():
-            if count == number_of_repeats:
-                # get index of element that fufils the criteria to update canteen and food info too
-                selected_index = food_stall_list.index(item)
-
-                repeated_food_4_row_matrix[0].append(food_court_list[selected_index])
-                repeated_food_4_row_matrix[1].append(food_stall_list[selected_index])
-                repeated_food_4_row_matrix[2].append(food_stall_info_list[selected_index])
-                repeated_food_4_row_matrix[3].append(count)
-
-        number_of_repeats -= 1
-
-    return repeated_food_4_row_matrix
-
-
-# remove NONE values from food list to simplify it
-def remove_NONE_from_list(food_list):
-    return [value for value in food_list if value != None]
-
-
 # Price-based Search Function - to be implemented
 # add on to keywords based search
-# NUMBER OF REPEATS NOT WORKING FOR NOW
 
 def search_by_price(user_input_keywords):
     list_matrix_search_by_keywords = search_by_keyword(user_input_keywords, False)
@@ -445,7 +416,7 @@ def search_nearest_canteens(user_locations):
         # Last i elements are already in place
         for j in range(0, len_list - i - 1):
 
-            # traverse the array from 0 to n-i-1
+            # traverse the array from 0 to len_list-i-1
             # Swap if the element found is greater
             # than the next element
             if list_of_distances_from_targets[j] > list_of_distances_from_targets[j + 1]:
@@ -471,6 +442,32 @@ def calc_distance(userX, userY, targetX, targetY):
 
 
 # Any additional function to assist search criteria
+
+# returns a 4 row matrix that stores all information of repeated food stalls
+def check_for_repeats(food_court_list, food_stall_list, food_stall_info_list, number_of_repeats):
+    # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2]]
+    repeated_food_4_row_matrix = [[], [], [], []]
+
+    while number_of_repeats > 1:
+        for item, count in collections.Counter(food_stall_list).items():
+            if count == number_of_repeats:
+                # get index of element that fufils the criteria to update canteen and food info too
+                selected_index = food_stall_list.index(item)
+
+                repeated_food_4_row_matrix[0].append(food_court_list[selected_index])
+                repeated_food_4_row_matrix[1].append(food_stall_list[selected_index])
+                repeated_food_4_row_matrix[2].append(food_stall_info_list[selected_index])
+                repeated_food_4_row_matrix[3].append(count)
+
+        number_of_repeats -= 1
+
+    return repeated_food_4_row_matrix
+
+
+# remove NONE values from food list to simplify it
+def remove_NONE_from_list(food_list):
+    return [value for value in food_list if value != None]
+
 
 # Main Python Program Template
 # dictionary data structures
@@ -513,7 +510,6 @@ def main():
             # print provided dictionary data structures
 
             # testing ux function
-            ux.error_handler()
             print("1 -- Display Data")
             print("Keyword Dictionary: ", canteen_stall_keywords)
             print("Price Dictionary: ", canteen_stall_prices)
