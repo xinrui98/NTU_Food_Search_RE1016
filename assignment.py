@@ -4,7 +4,6 @@ from PIL import Image
 import time
 import pandas as pd
 import xlrd
-import user_experience as ux
 import collections
 import numpy as np
 
@@ -153,7 +152,7 @@ def get_user_location_interface():
     return mouseX_scaled, mouseY_scaled
 
 
-# Keyword-based Search Function - to be implemented
+# Keyword-based Search Function
 def search_by_keyword(user_input_keywords, print_info_true_or_false):
     # that returns all food stall listed in the database
 
@@ -172,19 +171,9 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
 
             for individual_word in individual_keywords_array:
 
-                # check if each individual keyword is in foodstall's name
-                # change all to lower case for easy comparison
-                if individual_word.lower() in key.lower():
-                    total_keywords_appearances += 1
-
-                    # updating the lists for foodcourt name and foodstall name and foodstall info
-                    list_matrix_original_food[0].append(canteen)
-                    list_matrix_original_food[1].append(key)
-                    list_matrix_original_food[2].append(info[key])
-
                 # check if keyword is in foodstall's description
                 # change all to lower case for easy comparison
-                elif individual_word.lower() in info[key].lower():
+                if individual_word.lower() in info[key].lower():
                     total_keywords_appearances += 1
 
                     # updating the lists for foodcourt name and foodstall name and foodstall info
@@ -192,9 +181,20 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
                     list_matrix_original_food[1].append(key)
                     list_matrix_original_food[2].append(info[key])
 
+                # # bonus function
+                # # check if each individual keyword is in foodstall's name
+                # # change all to lower case for easy comparison
+                # elif individual_word.lower() in key.lower():
+                #     total_keywords_appearances += 1
+                #
+                #     # updating the lists for foodcourt name and foodstall name and foodstall info
+                #     list_matrix_original_food[0].append(canteen)
+                #     list_matrix_original_food[1].append(key)
+                #     list_matrix_original_food[2].append(info[key])
+
     # handling error of 0 relevant searches found, asking user to try again
-    if (ux.error_handling_no_type_of_food(total_keywords_appearances)):
-        print("no relevant searches found, please try again")
+    if total_keywords_appearances == 0:
+        print("No food stalls found with input keyword(s), please try again")
         return False
 
     # trying a repeated food matrix to simplify processes
@@ -228,26 +228,43 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
         print("Total number of relevant food stalls found: " + str(total_number_of_relevant_food_stalls))
         print("\n")
 
+        # only print output for multiple keywords if relevant
+        if len(list_matrix_repeated_food[0]) > 0:
+
+            highest_num_of_keywords = list_matrix_repeated_food[3][0]
+            print("Relevant food stalls that matches " + str(highest_num_of_keywords) + " keywords: ")
+            for i in range(len(list_matrix_repeated_food[0])):
+                if list_matrix_repeated_food[3][i] == highest_num_of_keywords:
+                    print(list_matrix_repeated_food[0][i] +
+                          " - " + list_matrix_repeated_food[1][i] + " " + "| Description: " +
+                          list_matrix_repeated_food[2][
+                              i])
+
+                else:
+                    print("\n")
+                    highest_num_of_keywords-=1
+                    print("Relevant food stalls that matches " + str(highest_num_of_keywords) + " keywords: ")
+            print("\n")
+
+            # print("\n")
+            # # Food stalls that matches MULTIPLE keywords
+            # print("Total number of relevant food stalls that matches multiple keywords: " + str(
+            #     len(list_matrix_repeated_food[0])))
+            # for i in range(len((list_matrix_repeated_food)[0])):
+            #     print("Number of keywords matched : " + str(list_matrix_repeated_food[3][i]) + " | " +
+            #           list_matrix_repeated_food[0][i] +
+            #           " - " + list_matrix_repeated_food[1][i] + " " + "| Description: " + list_matrix_repeated_food[2][
+            #               i])
+            # print("\n")
+
         # Food stalls that matches ONLY 1 keyword
-        print("Total number of relevant food stalls that matches 1 keyword: " + str(
-            len(list_matrix_NO_repeated_food[1])))
+        print("Relevant food stalls that matches 1 keyword: ")
 
         # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list and print the non-NONE elements
         for i in range(len(list_matrix_NO_repeated_food[1])):
             print(list_matrix_NO_repeated_food[0][i] + " - " +
                   list_matrix_NO_repeated_food[1][i] + " " + "| Description: " +
                   list_matrix_NO_repeated_food[2][i])
-
-        # only print output for multiple keywords if relevant
-        if len(list_matrix_repeated_food[0]) > 0:
-            print("\n")
-            # Food stalls that matches MULTIPLE keywords
-            print("Total number of relevant food stalls that matches multiple keywords: " + str(
-                len(list_matrix_repeated_food[0])))
-            for i in range(len((list_matrix_repeated_food)[0])):
-                print("Number of keywords matched : " + str(list_matrix_repeated_food[3][i]) + " | " +
-                      list_matrix_repeated_food[0][i] +
-                      " - " + list_matrix_repeated_food[1][i] + " " + "| Description: " + list_matrix_repeated_food[2][i])
 
     # return all relevant searches in 1 big matrix, combining repeated and non-repeated food
     # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2 etc]]
@@ -442,7 +459,6 @@ def search_nearest_canteens(user_locations):
 
 def calc_distance(userX, userY, targetX, targetY):
     distance = math.sqrt(((userX - targetX) ** 2) + ((userY - targetY) ** 2))
-    # print("distance: " + str(distance))
     return distance
 
 
