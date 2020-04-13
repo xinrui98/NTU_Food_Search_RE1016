@@ -235,7 +235,7 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
         # replaced repeats with NONE, so gotta use the remove_NONE_from_list to find actual length of list and print the non-NONE elements
         for i in range(len(list_matrix_NO_repeated_food[1])):
             print(list_matrix_NO_repeated_food[0][i] + " - " +
-                  list_matrix_NO_repeated_food[1][i] + " - " +
+                  list_matrix_NO_repeated_food[1][i] + " " + "| Description: " +
                   list_matrix_NO_repeated_food[2][i])
 
         # only print output for multiple keywords if relevant
@@ -247,7 +247,7 @@ def search_by_keyword(user_input_keywords, print_info_true_or_false):
             for i in range(len((list_matrix_repeated_food)[0])):
                 print("Number of keywords matched : " + str(list_matrix_repeated_food[3][i]) + " | " +
                       list_matrix_repeated_food[0][i] +
-                      " - " + list_matrix_repeated_food[1][i] + " - " + list_matrix_repeated_food[2][i])
+                      " - " + list_matrix_repeated_food[1][i] + " " + "| Description: " + list_matrix_repeated_food[2][i])
 
     # return all relevant searches in 1 big matrix, combining repeated and non-repeated food
     # looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[no_of_repeats1, no_of_repeats2 etc]]
@@ -282,23 +282,24 @@ def search_by_price(user_input_keywords):
             list_matrix_all_food_prices[2].append(info[key])
 
     # creating a matrix with relevant foodstalls and their prices
-    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[price1, price2 etc],[repeats1, repeats2 etc]]
-    list_matrix_relevant_food_prices = [[], [], [], []]
+    # it looks something like this [[foodcourt1, foodcourt2 etc],[foodstall1, foodstall2 etc],[info1, info2 etc],[repeats1, repeats2 etc],[price1, price2 etc]]
+    list_matrix_relevant_food_prices = [[], [], [], [], []]
     # filtering the relevant food stalls by keywords and show price
     for relevant_food_stall in list_matrix_search_by_keywords[1]:
         for i in range(len(list_matrix_all_food_prices[1])):
             if relevant_food_stall == list_matrix_all_food_prices[1][i]:
                 # getting the relevant food stall prices
-                list_matrix_relevant_food_prices[2].append(list_matrix_all_food_prices[2][i])
+                list_matrix_relevant_food_prices[4].append(list_matrix_all_food_prices[2][i])
 
     # rest of the relevant information(canteen name, food stall, number of repeats) are already known from search_by_keywords function
     list_matrix_relevant_food_prices[0] = list_matrix_search_by_keywords[0].copy()
     list_matrix_relevant_food_prices[1] = list_matrix_search_by_keywords[1].copy()
+    list_matrix_relevant_food_prices[2] = list_matrix_search_by_keywords[2].copy()
     list_matrix_relevant_food_prices[3] = list_matrix_search_by_keywords[3].copy()
 
     # Performing bubbleSort
     # Traverse through all list elements
-    list_len = len(list_matrix_relevant_food_prices[2])
+    list_len = len(list_matrix_relevant_food_prices[4])
     for i in range(list_len):
         # Last i elements are already in place
         for j in range(0, list_len - i - 1):
@@ -306,9 +307,9 @@ def search_by_price(user_input_keywords):
             # traverse the array from 0 to list_len-i-1
             # Swap if the element found is greater
             # than the next element
-            if list_matrix_relevant_food_prices[2][j] > list_matrix_relevant_food_prices[2][j + 1]:
-                list_matrix_relevant_food_prices[2][j], list_matrix_relevant_food_prices[2][j + 1] = \
-                    list_matrix_relevant_food_prices[2][j + 1], list_matrix_relevant_food_prices[2][j]
+            if list_matrix_relevant_food_prices[4][j] > list_matrix_relevant_food_prices[4][j + 1]:
+                list_matrix_relevant_food_prices[4][j], list_matrix_relevant_food_prices[4][j + 1] = \
+                    list_matrix_relevant_food_prices[4][j + 1], list_matrix_relevant_food_prices[4][j]
 
                 # perform corresponding rearrangement for food canteens
                 list_matrix_relevant_food_prices[0][j], list_matrix_relevant_food_prices[0][j + 1] = \
@@ -317,6 +318,10 @@ def search_by_price(user_input_keywords):
                 # perform corresponding rearrangement for food stalls
                 list_matrix_relevant_food_prices[1][j], list_matrix_relevant_food_prices[1][j + 1] = \
                     list_matrix_relevant_food_prices[1][j + 1], list_matrix_relevant_food_prices[1][j]
+
+                # perform corresponding rearrangement for food info
+                list_matrix_relevant_food_prices[2][j], list_matrix_relevant_food_prices[2][j + 1] = \
+                    list_matrix_relevant_food_prices[2][j + 1], list_matrix_relevant_food_prices[2][j]
 
                 # perform corresponding rearrangement for number of repeats
                 list_matrix_relevant_food_prices[3][j], list_matrix_relevant_food_prices[3][j + 1] = \
@@ -333,9 +338,9 @@ def search_by_price(user_input_keywords):
     print("Relevant searches in ascending order PRICE")
     for i in range(total_number_of_relevant_food_stalls):
         print(list_matrix_relevant_food_prices[0][i] + " - " +
-              list_matrix_relevant_food_prices[1][i] + " " + "| price: " + str(
+              list_matrix_relevant_food_prices[1][i] + " " + "| Description: " + str(
             list_matrix_relevant_food_prices[2][i]) + " " + "| Number of relevant keywords: " + str(
-            list_matrix_relevant_food_prices[3][i]))
+            list_matrix_relevant_food_prices[3][i]) + " " + "| Price: " + str(list_matrix_relevant_food_prices[4][i]))
 
 
 # Location-based Search Function - to be implemented
